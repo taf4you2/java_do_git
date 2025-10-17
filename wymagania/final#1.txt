@@ -1,0 +1,15 @@
+Wymagania dotyczące finalnej wersji aplikacji z ćw. 1:
+
+    aplikacja konsolowa lub graficzna,
+    podział na pakiety klas wg szablonu model-widok-kontroler (MVC),
+    przekazywanie parametrów wywołania programu do aplikacji w linii poleceń,
+    opis kolejności przekazywania parametrów w komentarzu metody "main",
+    w przypadku braku lub niewłaściwej liczby parametrów w linii wywołania, aplikacja powinna zapewnić interakcję z użytkownikiem w celu pobrania danych z użyciem strumieni systemowych bądź GUI,
+    zdefiniowanie i rzucenie własnego wyjątku w modelu i jego obsługa w kontrolerze;
+    stosowanie "czystego" podejścia obiektowego: składniki wyłącznie prywatne i publiczne; pełna hermetyzacja w szczególności pól modelu,
+    stosowanie konwencji nazewniczej Javy (identyfikatory w języku angielskim),
+    wygenerowanie dokumentacji (javadoc):
+        komentarze do wszystkich pakietów, klas, metod i pól w języku angielskim,
+        obowiązkowe znaczniki: @author, @version, @param, @return, @throws,
+    poprawne przygotowanie całości raportu w postaci zarchiwizowanego katalogu projektu NetBeans IDE,
+    oraz inne cechy wskazane przez osobę prowadzącą zajęcia.

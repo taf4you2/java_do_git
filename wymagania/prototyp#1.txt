@@ -1,0 +1,8 @@
+Minimalne wymagania dla prototypu aplikacji wykonywanej w ramach ćwiczenia nr 1
+
+    podział na pakiety klas wg szablonu  model-widok-kontroler (MVC),
+    odbiór parametrów wywołania programu do aplikacji z linii poleceń,
+    w przypadku braku parametrów w linii wywołania, aplikacja powinna zapewnić interakcję z użytkownikiem w celu pobrania danych z użyciem strumieni systemowych bądź GUI,
+    częściowa funkcjonalność modelu,
+    wyświetlanie jakiegokolwiek sensownego wyniku,
+    oraz inne cechy wskazane przez osobę prowadzącą zajęcia.
