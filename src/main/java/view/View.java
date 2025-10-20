@@ -1,18 +1,22 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package viev;
+package view;
 
-import module.LottoGame;
+import model.LottoGame;
 
 /**
- *
- * @author wojtek
+ * View class responsible for displaying information to the user.
+ * 
+ * @author Wojciech Węglorz
+ * @version 1.0
  */
 
 public class View {
     
+    /**
+     * Displays the lottery game results (game name and wining numbers).
+     * Numbers are displayed in a single line separated by spaces.
+     * 
+     * @param game the lottery game whose results should be displayed
+     */
     public void displayResults(LottoGame game) {
         System.out.println(game.getGameName());
         
@@ -26,10 +30,19 @@ public class View {
         System.out.println();
     }
     
+    /**
+     * Displays an error message.
+     * 
+     * @param message the error message to display
+     */
     public void displayError(String message) {
         System.err.println("Blad: " + message);
     }
     
+    /**
+     * Prompts the user to enter the game type.
+     * Displays available game options.
+     */
     public void promptForGameType() {
         System.out.println("Podaj rodzaj gry (lotto): ");
     }

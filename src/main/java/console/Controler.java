@@ -1,67 +1,89 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package console;
 
-import module.LottoGame;
-import viev.View;
+import model.LottoGame;
+import view.View;
+import model.InvalidGameTypeException;
 import java.util.Scanner;
 
 /**
- *
- * @author wojtek
+ * Controller class that manages the application flow and user interaction.
+ * 
+ * @author Wojciech Węglorz
+ * @version 1.0
  */
 
 public class Controler {
+    
+    /** View component for displaying information to the user */
     private View view;
+    
+    /** Current lottery game instance */
     private LottoGame game;
 
+    /**
+     * Controler constructor.
+     */
     public Controler() {
         this.view = new View();
     }
     
+    /**
+     * Main application flow method.
+     * Processes command line arguments or gets user input,
+     * creates the appropriate game, generates numbers and displays results.
+     * 
+     * @param args command line arguments
+     */
     public void run(String[] args) {
-        
-        //trzeba bedzie dorobic obsluge wielu arumentow i to ze jak program bez argumentow to jakies menu sie uruchamia
-        
         String gameType;
         
         if (args.length > 0) {
             gameType = args[0].toLowerCase();
-        } else {
+        }
+        else {
             gameType = getUserInput();
         }
         
-        if (createGame(gameType)) {
+        try {
+            createGame(gameType);
             game.generateNumbers();
             view.displayResults(game);
-        } else {
-            view.displayError("Nieznany rodzaj gry: " + gameType);
+        }
+        catch (InvalidGameTypeException e) {
+            view.displayError(e.getMessage());
         }
     }
-    
+
+    /**
+     * Gets game type input from the user via console.
+     * 
+     * @return the game type entered by the user
+     */
     private String getUserInput() {
-        Scanner scanner = new Scanner(System.in);
-        view.promptForGameType();
-        String input = scanner.nextLine().toLowerCase().trim(); // trim usuwa biale znaki
-        scanner.close();
+        String input;
+        try (Scanner scanner = new Scanner(System.in)) {
+            view.promptForGameType();
+            input = scanner.nextLine().toLowerCase().trim(); // trim usuwa biale znaki przed i za
+        }//tego try zaproponowal netbeans
         return input;
     }
     
-    private boolean createGame(String gameType) {
+    /**
+     * Creates a lottery game instance based on the specified game type.
+     * 
+     * @param gameType the type of lottery game to create
+     * @throws InvalidGameTypeException if the game type is not recognized
+     */
+    private void createGame(String gameType) throws InvalidGameTypeException {
         switch (gameType) {
-            case "lotto":
+            case "lotto" -> 
                 game = new LottoGame("Lotto", 6, 1, 49);
-                return true;
-            case "multimulti":
+            case "multimulti" -> 
                 game = new LottoGame("MultiMulti", 10, 1, 80);
-                return true;
-            case "minilotto":
+            case "minilotto" -> 
                 game = new LottoGame("Mini Lotto", 5, 1, 42);
-                return true;
-            default:
-                return false;
+            default -> 
+                throw new InvalidGameTypeException(gameType);
         }
     }
 }
