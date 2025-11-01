@@ -1,18 +1,25 @@
 package view;
 
-import model.LottoGame;
+import module.LottoGame;
 
 /**
  * View class responsible for displaying information to the user.
+ * Implements the View component of the MVC pattern.
  * 
  * @author Wojciech Węglorz
  * @version 1.0
  */
-
 public class View {
     
     /**
-     * Displays the lottery game results (game name and wining numbers).
+     * Default constructor for View class.
+     */
+    public View() {
+        // Default constructor
+    }
+    
+    /**
+     * Displays the lottery game results (game name and generated numbers).
      * Numbers are displayed in a single line separated by spaces.
      * 
      * @param game the lottery game whose results should be displayed
@@ -31,12 +38,12 @@ public class View {
     }
     
     /**
-     * Displays an error message.
+     * Displays an error message to the standard error stream.
      * 
      * @param message the error message to display
      */
     public void displayError(String message) {
-        System.err.println("Blad: " + message);
+        System.err.println("Error: " + message);
     }
     
     /**
@@ -44,6 +51,6 @@ public class View {
      * Displays available game options.
      */
     public void promptForGameType() {
-        System.out.println("Podaj rodzaj gry (lotto): ");
+        System.out.println("Enter game type (lotto, multimulti, minilotto): ");
     }
 }

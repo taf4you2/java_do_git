@@ -1,8 +1,8 @@
 package console;
 
-import model.LottoGame;
+import module.LottoGame;
 import view.View;
-import model.InvalidGameTypeException;
+import module.InvalidGameTypeException;
 import java.util.Scanner;
 
 /**

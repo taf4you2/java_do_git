@@ -1,4 +1,4 @@
-package model;
+package module;
 
 /**
  * Custom exception thrown when an invalid or unsupported game type is specified.
