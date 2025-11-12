@@ -1,16 +1,19 @@
 package module;
 
+import lombok.Getter;
+
 /**
  * Custom exception thrown when an invalid or unsupported game type is specified.
- * This exception is part of the model package and is handled by the controller.
+ * Uses Lombok @Getter to auto-generate getter method.
  * 
  * @author Wojciech Węglorz
- * @version 1.0
+ * @version 2.0
  */
+@Getter  // Automatycznie generuje getGameType()
 public class InvalidGameTypeException extends Exception {
     
     /** The invalid game type that caused the exception */
-    private String gameType;
+    private final String gameType;
     
     /**
      * Constructor creates an exception with a descriptive message.
@@ -20,14 +23,5 @@ public class InvalidGameTypeException extends Exception {
     public InvalidGameTypeException(String gameType) {
         super("Unknown game type: " + gameType + ". Available types: lotto, multimulti, minilotto");
         this.gameType = gameType;
-    }
-    
-    /**
-     * Gets the invalid game type that caused the exception.
-     * 
-     * @return the game type string
-     */
-    public String getGameType() {
-        return gameType;
     }
 }

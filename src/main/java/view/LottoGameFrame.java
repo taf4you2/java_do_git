@@ -5,22 +5,34 @@
 package view;
 
 import module.LottoGame;
+import module.InvalidGameTypeException;          
+import module.InvalidGameParametersException;
+import controller.LottoGameController;          
 import javax.swing.JOptionPane;
-
+import javax.swing.table.DefaultTableModel;
+import java.util.List;    
 /**
  *
  * @author wojtek
  */
 public class LottoGameFrame extends javax.swing.JFrame {
 
+    /** Controller for handling user actions and coordinating Model-View interaction */
+    private controller.LottoGameController controller;
+    
     /**
      * Creates new form LottoGameFrame
      */
     public LottoGameFrame() {
+        controller = new controller.LottoGameController(); // DODAJ TO
         initComponents();
+        initializeTable();
+        setupAccessibility();
+        setupTabOrder();
         updateGameInfo();
+        setTitle("Lotto Number Generator");
+        setLocationRelativeTo(null);
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -35,7 +47,7 @@ public class LottoGameFrame extends javax.swing.JFrame {
         gameInfoLabel = new javax.swing.JLabel();
         resultLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        resultArea = new java.awt.TextArea();
+        resultsTable = new javax.swing.JTable();
         generateButton = new javax.swing.JButton();
         clearButton = new javax.swing.JButton();
 
@@ -56,8 +68,26 @@ public class LottoGameFrame extends javax.swing.JFrame {
 
         resultLabel.setText("Generated numbers:");
 
-        resultArea.setEditable(false);
-        jScrollPane1.setViewportView(resultArea);
+        resultsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Draw #", "Game Type", "Numbers"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(resultsTable);
 
         generateButton.setMnemonic('g');
         generateButton.setText("Generate");
@@ -79,73 +109,103 @@ public class LottoGameFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(69, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(59, 59, 59))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(resultLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(160, 160, 160))))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(instrictionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(gameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(123, 123, 123)
-                        .addComponent(gameInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(87, 87, 87)
-                        .addComponent(generateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(89, 89, 89)
-                        .addComponent(clearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(157, 157, 157)
+                                .addComponent(instrictionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(gameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(123, 123, 123)
+                                    .addComponent(generateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(46, 46, 46)
+                                    .addComponent(clearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(178, 178, 178)
+                                    .addComponent(gameInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 105, Short.MAX_VALUE)))
+                .addGap(59, 59, 59))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(resultLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(204, 204, 204))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(77, 77, 77)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(gameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(instrictionLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, Short.MAX_VALUE)
+                    .addComponent(instrictionLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(gameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(72, 72, 72)
                 .addComponent(gameInfoLabel)
-                .addGap(44, 44, 44)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(generateButton)
                     .addComponent(clearButton))
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
                 .addComponent(resultLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26))
+                .addGap(25, 25, 25))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+/**
+ * Initializes the results table with proper model
+ */
+private void initializeTable() {
+    // Create table if doesn't exist
+    if (resultsTable == null) {
+        resultsTable = new javax.swing.JTable();
+    }
+    
+    // Set up table model
+    resultsTable.setModel(new javax.swing.table.DefaultTableModel(
+        new Object [][] {},
+        new String [] {
+            "Draw #", "Game Type", "Numbers"
+        }
+    ) {
+        Class[] types = new Class [] {
+            java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+        };
+        boolean[] canEdit = new boolean [] {
+            false, false, false
+        };
 
+        public Class getColumnClass(int columnIndex) {
+            return types [columnIndex];
+        }
+
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return canEdit [columnIndex];
+        }
+    });
+    
+    // Replace TextArea with Table in scroll pane
+    jScrollPane1.setViewportView(resultsTable);
+}
     /**
  * Update game information label based on selected game type
  */
 private void updateGameInfo() {
     String selectedGame = (String) gameComboBox.getSelectedItem();
-    String info = "";
+    String info;
     
-    switch (selectedGame.toLowerCase()) {
-        case "lotto":
-            info = "Draws 6 numbers from 1 to 49";
-            break;
-        case "multimulti":
-            info = "Draws 10 numbers from 1 to 80";
-            break;
-        case "minilotto":
-            info = "Draws 5 numbers from 1 to 42";
-            break;
+    try {
+        LottoGame game = controller.createGame(selectedGame);
+        info = controller.getGameInfo(game);
+    } catch (InvalidGameTypeException | InvalidGameParametersException e) {
+        info = "Invalid game configuration";
     }
     
     gameInfoLabel.setText(info);
@@ -153,63 +213,105 @@ private void updateGameInfo() {
 
 /**
  * Generate lottery numbers based on selected game type
+/**
+ * Generates lottery numbers for the selected game type.
+ * Delegates game creation and generation to Controller.
  */
 private void generateNumbers() {
-    String selectedGame = (String) gameComboBox.getSelectedItem();
-    LottoGame game = createGame(selectedGame);
-    
-    if (game != null) {
-        game.generateNumbers();
-        displayResults(game);
-    } else {
-        JOptionPane.showMessageDialog(
-            this,
-            "Unknown game type: " + selectedGame,
-            "Error",
-            JOptionPane.ERROR_MESSAGE
-        );
+    try {
+        String selectedGame = (String) gameComboBox.getSelectedItem();
+        
+        if (!controller.isValidGameType(selectedGame)) {
+            showErrorDialog("No Game Selected", "Please select a valid game type.");
+            return;
+        }
+        
+        LottoGame game = controller.createGame(selectedGame);
+        controller.generateNumbers(game);
+        addResultToTable(game);
+        
+    } catch (InvalidGameTypeException e) {
+        showErrorDialog("Invalid Game Type", e.getMessage());
+    } catch (InvalidGameParametersException e) {
+        showErrorDialog("Invalid Parameters", e.getMessage());
+    } catch (Exception e) {
+        showErrorDialog("Unexpected Error", 
+            "An unexpected error occurred: " + e.getMessage());
     }
 }
 
 /**
- * Create a LottoGame instance based on game type
- * 
- * @param gameType the type of game to create
- * @return LottoGame instance or null if unknown type
+ * Configures accessibility features for all interactive components.
+ * Sets up tooltips, accessible descriptions, and mnemonic keys
+ * to ensure the application is usable with screen readers and keyboard navigation.
  */
-private LottoGame createGame(String gameType) {
-    switch (gameType.toLowerCase()) {
-        case "lotto":
-            return new LottoGame("Lotto", 6, 1, 49);
-        case "multimulti":
-            return new LottoGame("MultiMulti", 10, 1, 80);
-        case "minilotto":
-            return new LottoGame("Mini Lotto", 5, 1, 42);
-        default:
-            return null;
-    }
+
+private void setupAccessibility() {
+    // ComboBox accessibility
+    gameComboBox.setToolTipText("Choose the type of lottery game");
+    gameComboBox.getAccessibleContext().setAccessibleDescription(
+        "Combo box for selecting lottery game type: Lotto, MultiMulti, or MiniLotto");
+    
+    // Generate button accessibility
+    generateButton.setMnemonic('G');
+    generateButton.setToolTipText("Generate random lottery numbers (Alt+G)");
+    generateButton.getAccessibleContext().setAccessibleDescription(
+        "Button to generate lottery numbers for selected game");
+    
+    // Clear button accessibility
+    clearButton.setMnemonic('C');
+    clearButton.setToolTipText("Clear all generated results (Alt+C)");
+    clearButton.getAccessibleContext().setAccessibleDescription(
+        "Button to clear the results table");
+    
+    // Table accessibility
+    resultsTable.setToolTipText("Table showing generated lottery numbers");
+    resultsTable.getAccessibleContext().setAccessibleDescription(
+        "Table displaying history of generated lottery numbers with draw number, game type, and numbers");
+    
+    // Frame accessibility
+    this.getAccessibleContext().setAccessibleDescription(
+        "Lotto Number Generator application window");
 }
+
+
 
 /**
  * Display generated numbers in the result area
  * 
  * @param game the LottoGame with generated numbers
  */
-private void displayResults(LottoGame game) {
-    StringBuilder result = new StringBuilder();
-    result.append(game.getGameName()).append("\n");
-    result.append("=".repeat(game.getGameName().length())).append("\n\n");
+private void addResultToTable(LottoGame game) {
+    DefaultTableModel model = (DefaultTableModel) resultsTable.getModel();
+    int drawNumber = model.getRowCount() + 1;
     
-    int[] numbers = game.getGeneratedNumbers();
-    for (int i = 0; i < numbers.length; i++) {
-        result.append(String.format("%3d", numbers[i]));
-        if (i < numbers.length - 1) {
-            result.append("  ");
+    List<Integer> numbers = game.getGeneratedNumbers();
+    StringBuilder numbersString = new StringBuilder();
+    
+    for (int i = 0; i < numbers.size(); i++) {
+        numbersString.append(String.format("%2d", numbers.get(i))); // .get(i) zamiast [i]
+        if (i < numbers.size() - 1) {
+            numbersString.append(", ");
         }
     }
-    result.append("\n");
     
-    resultArea.setText(result.toString());
+    model.addRow(new Object[]{drawNumber, game.getGameName(), numbersString.toString()});
+    
+    int lastRow = model.getRowCount() - 1;
+    resultsTable.setRowSelectionInterval(lastRow, lastRow);
+    resultsTable.scrollRectToVisible(resultsTable.getCellRect(lastRow, 0, true));
+}
+
+
+/**
+ * Displays an error message dialog to the user.
+ * Used for reporting exceptions and validation errors in graphical form.
+ * 
+ * @param title the title of the error dialog
+ * @param message the detailed error message to display
+ */
+private void showErrorDialog(String title, String message) {
+    JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 }
     
     private void gameComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gameComboBoxActionPerformed
@@ -220,54 +322,27 @@ private void displayResults(LottoGame game) {
         generateNumbers();
     }//GEN-LAST:event_generateButtonActionPerformed
 
+    
     private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
-        resultArea.setText("");
+        if (resultsTable != null) {
+        DefaultTableModel model = (DefaultTableModel) resultsTable.getModel();
+        model.setRowCount(0);
+    }
     }//GEN-LAST:event_clearButtonActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(LottoGameFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(LottoGameFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(LottoGameFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(LottoGameFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LottoGameFrame().setVisible(true);
-            }
-        });
-    }
-
-    /**
- * Setup logical tab order for keyboard navigation
+/**
+ * Establishes logical tab order for keyboard navigation.
+ * Defines the sequence: game selector → generate button → clear button → results table.
+ * Ensures smooth navigation using Tab and Shift+Tab keys.
  */
 private void setupTabOrder() {
     java.util.Vector<java.awt.Component> order = new java.util.Vector<>();
     order.add(gameComboBox);
     order.add(generateButton);
     order.add(clearButton);
-    order.add(resultArea);
+    order.add(resultsTable);
     
     setFocusTraversalPolicy(new javax.swing.LayoutFocusTraversalPolicy() {
         @Override
@@ -311,7 +386,7 @@ private void setupTabOrder() {
     private javax.swing.JButton generateButton;
     private javax.swing.JLabel instrictionLabel;
     private javax.swing.JScrollPane jScrollPane1;
-    private java.awt.TextArea resultArea;
     private javax.swing.JLabel resultLabel;
+    private javax.swing.JTable resultsTable;
     // End of variables declaration//GEN-END:variables
 }

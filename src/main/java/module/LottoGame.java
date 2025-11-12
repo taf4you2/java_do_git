@@ -1,45 +1,55 @@
 package module;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.java.Log;
 import java.util.*;
 
 /**
  * Model class representing a lottery game.
  * Generates unique random numbers within a specified range.
+ * Uses Lombok annotations to reduce boilerplate code.
  * 
  * @author Wojciech Węglorz
- * @version 1.0
+ * @version 4.0
  */
+@Getter  // Automatycznie generuje gettery dla wszystkich pól
+@Log     // Automatycznie tworzy logger: log
 public class LottoGame {
     
-    /** Name of the lottery game */
-    private String gameName;
+    /** Configuration of the lottery game (immutable) */
+    @NonNull
+    private final GameConfiguration configuration;
     
-    /** Number of lottery numbers to generate */
-    private int numbersCount;
-    
-    /** Minimum value in the lottery number range (inclusive) */
-    private int minRange;
-    
-    /** Maximum value in the lottery number range (inclusive) */
-    private int maxRange;
-    
-    /** Array containing the generated lottery numbers */
-    private int[] generatedNumbers;
+    /** List containing the generated lottery numbers (type-safe collection) */
+    private List<Integer> generatedNumbers;
     
     /**
-     * Constructor creates a new lottery game with parameters.
+     * Constructor creates a new lottery game with configuration.
+     * 
+     * @param configuration the game configuration (must not be null)
+     * @throws InvalidGameParametersException if configuration is invalid
+     */
+    public LottoGame(@NonNull GameConfiguration configuration) 
+            throws InvalidGameParametersException {
+        this.configuration = configuration;
+        this.generatedNumbers = new ArrayList<>();
+        log.info("Created new game: " + configuration.gameName());
+    }
+    
+    /**
+     * Convenience constructor with individual parameters.
+     * Creates GameConfiguration internally.
      * 
      * @param gameName the name of the lottery game
      * @param numbersCount the quantity of numbers to generate
-     * @param minRange the minimum value in the number range (inclusive)
-     * @param maxRange the maximum value in the number range (inclusive)
+     * @param minRange the minimum value in the number range
+     * @param maxRange the maximum value in the number range
+     * @throws InvalidGameParametersException if parameters are invalid
      */
-    public LottoGame(String gameName, int numbersCount, int minRange, int maxRange) {
-        this.gameName = gameName;
-        this.numbersCount = numbersCount;
-        this.minRange = minRange;
-        this.maxRange = maxRange;
-        this.generatedNumbers = new int[numbersCount];
+    public LottoGame(String gameName, int numbersCount, int minRange, int maxRange) 
+            throws InvalidGameParametersException {
+        this(new GameConfiguration(gameName, numbersCount, minRange, maxRange));
     }
     
     /**
@@ -47,80 +57,56 @@ public class LottoGame {
      * The generated numbers are sorted in ascending order.
      */
     public void generateNumbers() {
+        generatedNumbers.clear();
         Random random = new Random();
-        int count = 0;
         
-        while (count < numbersCount) {
-            int number = random.nextInt(maxRange - minRange + 1) + minRange;
+        while (generatedNumbers.size() < configuration.numbersCount()) {
+            int number = random.nextInt(
+                configuration.maxRange() - configuration.minRange() + 1
+            ) + configuration.minRange();
             
-            if (!contains(generatedNumbers, number, count)) {
-                generatedNumbers[count] = number;
-                count++;
+            if (!generatedNumbers.contains(number)) {
+                generatedNumbers.add(number);
             }
         }
         
-        Arrays.sort(generatedNumbers);
+        Collections.sort(generatedNumbers);
+        log.fine("Generated numbers: " + generatedNumbers);
     }
     
     /**
-     * Helper method for ensuring uniqueness of generated numbers.
+     * Gets the list of generated lottery numbers.
+     * Returns unmodifiable list to prevent external modifications.
      * 
-     * @param array the array to search
-     * @param value the value to find
-     * @param length the number of elements to check from the start
-     * @return true if the value is found, false otherwise
+     * @return unmodifiable list containing the generated numbers
      */
-    private boolean contains(int[] array, int value, int length) {
-        for (int i = 0; i < length; i++) {
-            if (array[i] == value) {
-                return true;
-            }
-        }
-        return false;
+    public List<Integer> getGeneratedNumbers() {
+        return Collections.unmodifiableList(generatedNumbers);
     }
     
     /**
-     * Gets the name of the lottery game.
+     * Creates a DrawResult from current game state.
      * 
-     * @return the game name
+     * @return DrawResult record with configuration and generated numbers
      */
+    public DrawResult createDrawResult() {
+        return new DrawResult(configuration, generatedNumbers);
+    }
+    
+    // Gettery dla kompatybilności wstecznej (View może ich używać)
     public String getGameName() {
-        return gameName;
+        return configuration.gameName();
     }
-
-    /**
-     * Gets the array of generated lottery numbers.
-     * 
-     * @return array containing the generated numbers
-     */
-    public int[] getGeneratedNumbers() {
-        return generatedNumbers;
-    }
-
-    /**
-     * Gets the count of numbers to be generated.
-     * 
-     * @return the quantity of lottery numbers
-     */
+    
     public int getNumbersCount() {
-        return numbersCount;
+        return configuration.numbersCount();
     }
-
-    /**
-     * Gets the minimum value in the lottery number range.
-     * 
-     * @return the minimum range value (inclusive)
-     */
+    
     public int getMinRange() {
-        return minRange;
+        return configuration.minRange();
     }
-
-    /**
-     * Gets the maximum value in the lottery number range.
-     * 
-     * @return the maximum range value (inclusive)
-     */
+    
     public int getMaxRange() {
-        return maxRange;
+        return configuration.maxRange();
     }
 }
