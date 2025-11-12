@@ -3,18 +3,20 @@ package com.mycompany.wojciechweglorzex1;
 import view.LottoGameFrame;
 
 /**
- * Main class for Lotto Game application
- * Launches GUI for lottery number generation
+ * Main class for Lotto Game application.
+ * Launches GUI for lottery number generation.
  * 
- * Parameters order: not applicable - GUI application
+ * This is a GUI application - no command line parameters are used.
+ * All interaction is done through the graphical interface.
  * 
- * @author wojtek
+ * @author Wojciech Węglorz
  * @version 2.0
  */
 public class WojciechWeglorzEx1 {
     
     /**
-     * Main method - launches the GUI application
+     * Main method - launches the GUI application.
+     * No command line arguments are processed in this GUI version.
      * 
      * @param args command line arguments (not used in GUI mode)
      */
@@ -27,8 +29,10 @@ public class WojciechWeglorzEx1 {
                     break;
                 }
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(WojciechWeglorzEx1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | 
+                 javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(WojciechWeglorzEx1.class.getName())
+                .log(java.util.logging.Level.SEVERE, null, ex);
         }
 
         /* Create and display the form */
